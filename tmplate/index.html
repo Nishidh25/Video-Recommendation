@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Video Recommender</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+        <link rel="stylesheet" href="style.css">
+    <style type="text/css">
+        html, body {
+  width: 100%;
+  height:100%;
+}
+
+body {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+h1 {
+    text-align: center;
+}
+
+.wrapper {
+    text-align: center;
+}
+
+.button {
+    position: absolute;
+    top: 50%;
+}
+
+.btn {
+    background-color: #ddd;
+    color: black;
+    text-align: center;
+    font-size: 16px;
+    transition: 0.3s;
+}
+  
+.btn:hover {
+    background-color: #000000;
+    color: white;
+}
+
+
+.footer {
+    font-weight: bold;
+    font-style: italic;
+    position: fixed;
+    padding: 3px;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    font-size: large;
+    color: black;
+    text-align: center;
+  }
+
+a:link {
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:visited {
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:hover {
+    color: white;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+a:active {
+    color: white;
+    background-color: transparent;
+    text-decoration: underline;
+}
+        
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 align="center">Video Recommender</h1>       
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Select videos</label>
+                    <select name="movies" data-live-search="true" id="movies" class="form-control" title="Select a Movie"> 
+                    {% for row in movies %}
+                    <option value="{{row['movieId']}}">{{row['title']}}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Combined Methods</label>
+                    <h6>Methods: 1. Ratings Correlation 2. Simillar Users 3. Cosine Similarity</h6>
+                </div>
+            </div>
+
+            <div class="container">
+                <h4 id = "pred">{{pred}}</h4>
+            </div>
+            <br>
+            <form action="/predict" method="POST">
+            <div class="wrapper">
+                <button id="submitted" class="btn" type="submit" value="{{category_id}}" name="submitted">Recommend</button>
+            </div>
+            </form>
+            <br>
+            <div class="footer">
+                <b>A project by -</b>
+                <p>
+                <a href="https://github.com/abhinavkmr569">Abhinav Kumar,</a>
+                <a href="https://github.com/AnishkaMoona">Anishka Moona,</a>
+                <a href="https://github.com/Nishidh25">Nishidh Shekhawat,</a>
+                <a href="https://github.com/saketlakhotia17">Saket Lakhotia,</a>
+                <a href="https://github.com/Uzzu0310">Uzair Khan</a>
+                </p>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+        <script>
+            var category_id = 1; 
+            $(document).ready(function () {
+                $("#movies").selectpicker();
+   
+                $("#methods").selectpicker();
+   
+                function load_data(type, category_id) {
+                    $.ajax({
+                        url: "/movies",
+                        method: "POST",
+                        data: { type: type, category_id: category_id },
+                        dataType: "json",
+                        success: function (data) { //alert(category_id)
+                            var html = "";
+                            for (var count = 0; count < data.length; count++) {
+                                html += '<option value="' + data[count].id + '">' + data[count].name + "</option>";
+                            }
+                            if (type == "movies") {
+                                $("#movies").html(html);
+                                $("#pred").html(" "+category_id);
+                                $("#movies").selectpicker("refresh");
+                            } else {
+                                $("#methods").html(html);
+                                $("#methods").selectpicker("refresh");
+                            }
+                        },
+                    });
+                }
+   
+                $(document).on("change", "#movies", function () {
+                    var category_id = $("#movies").val();
+                    load_data("movies", category_id);
+                    myFunction(category_id);
+                });
+
+            });
+        </script>
+        <script>
+function myFunction(category_id = 2) {
+  document.getElementById("submitted").value= category_id;
+}
+</script>
+    </body>
+</html>
